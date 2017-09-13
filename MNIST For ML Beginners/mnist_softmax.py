@@ -1,7 +1,6 @@
 DATA_FILE = "Data/"
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from mnist import MNIST
 from sklearn import preprocessing
