@@ -27,7 +27,7 @@ for i in range(size_train):
 for i in range(size_test):
 	oh_test_label.append(enc.transform(test_label[i]).toarray()[0])
 
-print("Training...")
+print("Graph loading...")
 
 x = tf.placeholder(tf.float32, shape = [None, 784])
 y_ = tf.placeholder(tf.float32, shape = [None, 10])
@@ -75,6 +75,13 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+print("Training...")
+
+def progbar(curr, total, full_progbar):
+	frac = curr/(total-100)
+	filled_progbar = round(frac*full_progbar)
+	print("\r", "#"*filled_progbar + "_"*(full_progbar - filled_progbar), "[{:>7.2%}]".format(frac), end="")
+
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	for i in range(20000):
@@ -83,10 +90,7 @@ with tf.Session() as sess:
 		batch_ys = [oh_train_label[i] for i in random_range]
 		if i % 100 == 0:
 			train_accuracy = accuracy.eval(feed_dict={x: batch_xs, y_: batch_ys, keep_prob: 1.0})
-			print('step %d, training accuracy %g' % (i, train_accuracy))
+			progbar(i, 20000, 100)
 		train_step.run(feed_dict={x: batch_xs, y_: batch_ys, keep_prob: 0.5})
-	print('test accuracy %g' % accuracy.eval(feed_dict={x: test_sample, y_: oh_test_label, keep_prob: 1.0}))
-
-
-
-
+	test_acc = accuracy.eval(feed_dict={x: test_sample, y_: oh_test_label, keep_prob: 1.0})
+	print("\ntest accuracy:{:.2%}".format(test_acc))
